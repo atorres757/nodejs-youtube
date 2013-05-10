@@ -36,7 +36,8 @@ var xml2json = require('node-xml2json'),
 
 var app = {
 	httpProtocol: 'http',  // http, https
-	timeout:      30000    // max execution time in milliseconds
+	timeout:      30000,    // max execution time in milliseconds
+	proxy: null
 }
 
 
@@ -193,6 +194,18 @@ app.talk = function( path, fields, cb, oldJsonKey ) {
 	if ( fields.key ) {
 		options.headers['X-GData-Key'] = 'key=' + fields.key
 		delete fields.key
+	}
+
+	// configure proxy
+	if (typeof this.proxy == "object") {
+		if (typeof this.proxy.host != "undefined") {
+			options.host = this.proxy.host;
+			options.path = (app.httpProtocol == 'https' ? "https://" : "http://") + options.hostname + options.path;
+			delete options.hostname;
+		}
+		if (typeof this.proxy.port != "undefined") {
+			options.port = this.proxy.port;
+		}
 	}
 	
 	if( app.httpProtocol === 'https' ) {
